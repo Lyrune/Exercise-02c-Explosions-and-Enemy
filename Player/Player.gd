@@ -5,6 +5,10 @@ var velocity = Vector2.ZERO
 var rotation_speed = 5.0
 var speed = 5.0
 var max_speed = 400.0
+var Explosion = load("res://Asteroid/ExplosionSprite.tscn")
+var effects = null
+
+var health = 1
 
 
 onready var Bullet = load("res://Player/Bullet.tscn")
@@ -43,3 +47,19 @@ func get_input():
 	return to_return.rotated(rotation)
 	
 		
+func damage(d):
+	health -= d
+	if health <= 0:
+		effects = get_node_or_null("/root/Game/Effects")
+		if effects != null:
+			var explosion = Explosion.instance()
+			effects.add_child(explosion)
+			explosion.global_position = global_position
+			hide()
+			yield(explosion, "animation_finished")
+		queue_free()
+
+
+func _on_Area2D_body_entered(body):
+	if body.name != "Player":
+		damage(100)
